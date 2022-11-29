@@ -4,7 +4,7 @@ import { verifyToken,verifyUser } from "../Utils/verifyToken.js"
 const router = express.Router();
 
 router.post("/create/:userId",verifyUser,createTodo);
-router.get("/get-all-todos", verifyUser, getTodos);
+router.get("/get-all-todos", verifyToken, getTodos);
 
 router.get("/get/:id",verifyToken,getOneTodo)
 router.put("/update/:id", verifyToken, updateTodo)
