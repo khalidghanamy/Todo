@@ -4,12 +4,12 @@ import { verifyToken,verifyUser } from "../Utils/verifyToken.js"
 const router = express.Router();
 
 router.post("/create/:userId",verifyUser,createTodo);
-router.get("/read/:userId", verifyUser, getTodos);
+router.get("/get-all-todos", verifyUser, getTodos);
 
-router.route("/:id")
-    .get(verifyToken,getOneTodo)
-    .put(verifyToken,updateTodo)
-    .delete(verifyToken,deleteTodo);
+router.get("/get/:id",verifyToken,getOneTodo)
+router.put("/update/:id", verifyToken, updateTodo)
+router.delete("/delete/:id", verifyToken, deleteTodo)
+
 
 
 

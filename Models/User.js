@@ -15,10 +15,10 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    tasks: [
+    todos: [
         {
         type: Schema.Types.ObjectId,
-        ref: "Task"
+        ref: "Todo"
     }]
 });
 const User = mongoose.model("User", userSchema);

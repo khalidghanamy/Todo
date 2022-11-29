@@ -3,8 +3,9 @@ import User from "../Models/User.js";
 
 
 const checkUser = async (req, res, next) => {
-    const { userId } = req.params;
-    const user = await User.findById(userId);
+    const { id } = req.user
+    const user = await User.findById(id);
+
     if (!user) {
         return res.status(400).json({ status: false, msg: "User does not exist" });
     }
@@ -26,12 +27,11 @@ export const createTodo = async (req, res, next) => {
         //add Todo to user
         const user = await User.findByIdAndUpdate(userId, {
             $push: {
-                Todos: todo._id
+                todos: todo._id
             }
-        });
+        }, { new: true });
 
-
-        return res.status(200).json({ status: true, msg: "Todo created successfully" });
+        return res.status(200).json({ status: true, todo, msg: "Todo created successfully" });
     } catch (error) {
         next(error);
     }
@@ -44,8 +44,6 @@ export const getOneTodo = async (req, res, next) => {
     try {
         //check if user exist in database
         await checkUser(req, res, next);
-
-
         //get Todo
         const todo = await Todo.findById(id);
         return res.json(todo);
@@ -56,25 +54,26 @@ export const getOneTodo = async (req, res, next) => {
 }
 export const getTodos = async (req, res, next) => {
 
-    const { userId } = req.params;
+    const { id } = req.user
     try {
         //check if user exist in database
 
         await checkUser(req, res, next);
-        //get tasks
-        const todo= await User.findById(userId).populate("tasks");
-        const data = tasks.tasks.map(task => {
+        //get todos
+        const user = await User.findById(id).populate("todos");
+        console.log(user.todos);
+        const data = user.todos.map(todo => {
             return {
-                id: task._id,
-                title: task.title,
-                description: task.description,
-                priority: task.priority,
-                status: task.status,
-                startedAt: task.startedAt,
-                finishedAt: task.finishedAt
+                id: todo._id,
+                title: todo.title,
+                description: todo.description,
+                priority: todo.priority,
+                status: todo.status,
+                startedAt: todo.startedAt,
+                finishedAt: todo.finishedAt
             }
         });
-        return res.status(200).json({ status: true, userTasks: data });
+        return res.status(200).json({ status: true, userTodos: data });
 
     } catch (error) {
         next(error);
@@ -83,18 +82,18 @@ export const getTodos = async (req, res, next) => {
 
 export const updateTodo = async (req, res, next) => {
     const { id } = req.params;
-    
+
 
     try {
-        //check if user is the owner of the Todo
-        const user = await User.findById(req.user.id);
-        if ( user.id == id) {
-
         //update Todo
         const todoData = await Todo.findByIdAndUpdate(id,
             { $set: req.body },
-            { new: true });
-        const Todo =
+            { new: true }
+        );
+        if (!todoData) {
+            return res.status(400).json({ status: false, msg: "Todo does not exist" });
+        }
+        const todo =
         {
             id: todoData._id,
             title: todoData.title,
@@ -104,15 +103,7 @@ export const updateTodo = async (req, res, next) => {
             startedAt: todoData.startedAt,
             finishedAt: todoData.finishedAt
         }
-            
-
-
-            return res.status(200).json({ todo: todoData, status: true, msg: "Todo updated successfully" });
-        }
-        else {
-            return res.status(400).json({ status: false, msg: "You are not the owner of this Todo" });
-        }
-
+        return res.status(200).json({ todo: todo, status: true, msg: "Todo updated successfully" });
     } catch (error) {
         next(error);
     }
@@ -121,19 +112,12 @@ export const updateTodo = async (req, res, next) => {
 export const deleteTodo = async (req, res, next) => {
     const { id } = req.params;
     try {
-        //check if user is the owner of the Todo
-        const user = await User.findById(req.user.id);
-        if (user.id == id) {
-
+     
             const todo = await Todo.findByIdAndDelete(id);
             await User.findByIdAndUpdate(todo.user, { $pull: { todos: todo._id } });
-            console.log('done');
+    
             return res.status(200).json({ status: true, msg: "Todo has been deleted" });
-        }
-        else {
-            return res.status(400).json({ status: false, msg: "You are not the owner of this Todo" });
-        }
-
+        
     } catch (error) {
         next(error);
     }

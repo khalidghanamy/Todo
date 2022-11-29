@@ -8,7 +8,7 @@ import connectToDb from "./Database/connection.js";
 import errorHandler from "./Middlewares/errorMiddleware.js";
 import notFound from "./Middlewares/notFoundMiddleware.js";
 import Auth from "./Routes/Auth.js";
-import Tasks from "./Routes/Tasks.js";
+import Todos from "./Routes/Todos.js";
 //=====================================================
 // Load environment variables from .env file
 dotenv.config();
@@ -31,7 +31,7 @@ app.use(cors());
 //====> Routes <========================================
 
 app.use("/auth", Auth);
-app.use("/tasks", Tasks);
+app.use("/todos", Todos);
 
 
 //====> Middleware <========================================
