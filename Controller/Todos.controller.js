@@ -54,7 +54,32 @@ export const getOneTodo = async (req, res, next) => {
         next(error);
     }
 }
+export const getTodos = async (req, res, next) => {
 
+    const { userId } = req.params;
+    try {
+        //check if user exist in database
+
+        await checkUser(req, res, next);
+        //get tasks
+        const todo= await User.findById(userId).populate("tasks");
+        const data = tasks.tasks.map(task => {
+            return {
+                id: task._id,
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                status: task.status,
+                startedAt: task.startedAt,
+                finishedAt: task.finishedAt
+            }
+        });
+        return res.status(200).json({ status: true, userTasks: data });
+
+    } catch (error) {
+        next(error);
+    }
+}
 
 export const updateTodo = async (req, res, next) => {
     const { id } = req.params;
