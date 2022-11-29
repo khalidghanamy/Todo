@@ -31,8 +31,12 @@ export const signup = async (req, res,next) => {
             }
             
            const token= jwt.sign(payload, process.env.JWT_SECRET , { expiresIn: 3600 });
-     
-           return res.status(200).json({status:true,token,newUser,msg:"register success",accessToken:token});
+            let user = {
+                name: savedUser.name,
+                email: savedUser.email,
+                id: savedUser._id,
+            }
+            return res.status(200).json({ status: true,user,msg:"register success",accessToken:token});
         } catch (error) {
             return res.status(400).json({ status:false, msg: 'User name or email are not valid' });
         }
@@ -63,8 +67,12 @@ export const login = async (req, res,next) => {
           }
           
          const token= jwt.sign(payload, process.env.JWT_SECRET , { expiresIn: 3600 });
-   
-         return res.status(200).json({status:true,token,user,msg:"login success",accessToken:token});
+          let logedUser = {
+              name: user.name,
+              email: user.email,
+              id: user._id,
+            }
+          return res.status(200).json({ status: true, user: logedUser ,msg:"login success",accessToken:token});
       } catch (error) {
             next(error);
         
