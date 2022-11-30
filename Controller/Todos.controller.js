@@ -119,7 +119,10 @@ export const updateTodo = async (req, res, next) => {
 export const deleteTodo = async (req, res, next) => {
     const { id } = req.params;
     try {
-
+        let isOwner = await isUserOwner(req, res, next);
+        if (!isOwner) {
+            return res.status(400).json({ status: false, msg: "You are not the owner of this todo" });
+        }
         const todo = await Todo.findByIdAndDelete(id);
         await User.findByIdAndUpdate(todo.userId, { $pull: { todos: todo._id } });
 
@@ -134,10 +137,10 @@ export const deleteTodo = async (req, res, next) => {
 export const isUserOwner = async (req, res, next) =>{
     const { id } = req.params;
     let user = await User.findById(req.user.id);
-    let x = user.todos.find(todo => todo == id);
-    if (x) {
-        return x
+    let todo = user.todos.find(todo => todo == id);
+    if (todo) {
+        return todo
     } else {
-        return null
+        return false
     }
 }
